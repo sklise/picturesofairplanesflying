@@ -17,7 +17,7 @@ void draw() {
   kinect.update();
 
   if (airplane) {
-    background(255, 0,0);
+    background(255, 0, 0);
   } else {
     background(255);
   }
@@ -29,81 +29,63 @@ void draw() {
 
   // if we found any users
   if (userList.length > 0) {
-    for( int userId : userList) {
+    for ( int userId : userList) {
       if (kinect.isTrackingSkeleton(userId)) {
-        stroke(0);
-        drawSkeleton(userId);
-      }
 
-      // initialize join position variables
-      PVector rightHand = new PVector();
-      PVector rightElbow = new PVector();
-      PVector leftHand = new PVector();
-      PVector leftElbow = new PVector();
-      PVector leftShoulder = new PVector();
-      PVector rightShoulder = new PVector();
+        // initialize join position variables
+        PVector rightHand = new PVector();
+        PVector rightElbow = new PVector();
+        PVector leftHand = new PVector();
+        PVector leftElbow = new PVector();
+        PVector leftShoulder = new PVector();
+        PVector rightShoulder = new PVector();
 
-      PVector torso = new PVector();
-      PVector neck = new PVector();
-      PVector head = new PVector();
+        PVector torso = new PVector();
+        PVector neck = new PVector();
+        PVector head = new PVector();
 
-      // dump joint info into the PVectors
-      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, leftHand);
-      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, rightHand);
-      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, leftElbow);
-      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, rightElbow);
-      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, leftShoulder);
-      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, rightShoulder);
+        // dump joint info into the PVectors
+        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, leftHand);
+        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, rightHand);
+        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, leftElbow);
+        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, rightElbow);
+        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, leftShoulder);
+        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, rightShoulder);
 
-      kinect.convertRealWorldToProjective(leftHand, leftHand);
-      kinect.convertRealWorldToProjective(rightHand, rightHand);
-      kinect.convertRealWorldToProjective(leftElbow, leftElbow);
-      kinect.convertRealWorldToProjective(rightElbow, rightElbow);
-      kinect.convertRealWorldToProjective(leftShoulder, leftShoulder);
-      kinect.convertRealWorldToProjective(rightShoulder, rightShoulder);
+        kinect.convertRealWorldToProjective(leftHand, leftHand);
+        kinect.convertRealWorldToProjective(rightHand, rightHand);
+        kinect.convertRealWorldToProjective(leftElbow, leftElbow);
+        kinect.convertRealWorldToProjective(rightElbow, rightElbow);
+        kinect.convertRealWorldToProjective(leftShoulder, leftShoulder);
+        kinect.convertRealWorldToProjective(rightShoulder, rightShoulder);
 
-      PVector[] vectors = {leftHand, rightHand, leftElbow, rightElbow, leftShoulder, rightShoulder};
+        PVector[] vectors = {
+          leftHand, rightHand, leftElbow, rightElbow, leftShoulder, rightShoulder
+        };
 
-      float[] fits = bestFit(vectors);
+        for (PVector v : vectors) {
+          fill(0, 0, 255);
+          noStroke();
+          ellipse(v.x, v.y, 5, 5);
+        }
 
-      float r2 = rsquare(vectors, fits[0], fits[1]);
+        float[] fits = bestFit(vectors);
 
-      stroke(255,0,0);
-      line(0, fits[1], 700, 700 * fits[0] + fits[1]);
+        float r2 = rsquare(vectors, fits[0], fits[1]);
 
-      println("R2 = " + r2);
+        stroke(255, 0, 0);
+        line(0, fits[1], 700, 700 * fits[0] + fits[1]);
 
-      if (r2 > 0.2) {
-        airplane = true;
-      } else {
-        airplane = false;
+        println("R2 = " + r2);
+
+        if (r2 > 0.2) {
+          airplane = true;
+        } else {
+          airplane = false;
+        }
       }
     }
   }
-}
-
-// draw the skeleton with the selected joints
-void drawSkeleton(int userId)
-{
-  // to get the 3d joint data
-  /*
-  PVector jointPos = new PVector();
-  kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_NECK,jointPos);
-  println(jointPos);
-  */
-
-  kinect.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
-
-  kinect.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_LEFT_SHOULDER);
-  kinect.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW);
-  kinect.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
-
-  kinect.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_RIGHT_SHOULDER);
-  kinect.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW);
-  kinect.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
-
-  kinect.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
-  kinect.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
 }
 
 float rsquare(PVector[] list, float m, float b) {
@@ -124,10 +106,12 @@ float rsquare(PVector[] list, float m, float b) {
   for (PVector vector : list) {
     sumtot += pow(vector.y - average, 2);
     float err = pow(vector.y - vector.x * m - b, 2);
-  
+
     float abserr = abs(err);
 
-    if (abserr > maxerr) { maxerr = abserr; }
+    if (abserr > maxerr) { 
+      maxerr = abserr;
+    }
     sumerr += err;
     sumreg += pow(vector.x * m + b - average, 2);
   }
@@ -153,15 +137,18 @@ float[] bestFit(PVector[] list) {
 
   for (PVector v : list) {
     sumx += v.x;
-    sumx2 += pow(v.x,2);
+    sumx2 += pow(v.x, 2);
     sumy += v.y;
     sumproduct += v.x * v.y;
   }
 
-  m = (sumproduct - (sumx * sumy / n)) / (sumx2 - pow(sumx,2)/n);
+  m = (sumproduct - (sumx * sumy / n)) / (sumx2 - pow(sumx, 2)/n);
 
   b = sumy / n - m * sumx / n;
 
-  float[] response = {m, b};
+  float[] response = {
+    m, b
+  };
   return response;
 }
+
