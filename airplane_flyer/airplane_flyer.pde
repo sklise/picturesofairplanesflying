@@ -2,7 +2,13 @@ import SimpleOpenNI.*;
 
 SimpleOpenNI kinect;
 
+boolean was_was_airplane = false;
+boolean was_airplane = false;
 boolean airplane = false;
+PImage airplane_image;
+String[] airplanes;
+int airplane_count;
+float slope;
 
 void setup() {
   kinect = new SimpleOpenNI(this);
@@ -10,84 +16,97 @@ void setup() {
   kinect.enableRGB();
   kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
   kinect.setMirror(true);
-  size(1080, 720);
+  size(1920, 1080);
+  
+  airplanes = loadStrings("filelist.txt");
+  airplane_count = airplanes.length;
 }
 
 void draw() {
   kinect.update();
 
-  if (airplane) {
-    background(255, 0, 0);
-  } else {
-    background(255);
-  }
-  image(kinect.depthImage(), 0, 0);
-
   // write the list of detected users
-  // into our vector
   int[] userList = kinect.getUsers();
 
   // if we found any users
   if (userList.length > 0) {
-    for ( int userId : userList) {
-      if (kinect.isTrackingSkeleton(userId)) {
+    int userId = userList[0];
+    if (kinect.isTrackingSkeleton(userId)) {
 
-        // initialize join position variables
-        PVector rightHand = new PVector();
-        PVector rightElbow = new PVector();
-        PVector leftHand = new PVector();
-        PVector leftElbow = new PVector();
-        PVector leftShoulder = new PVector();
-        PVector rightShoulder = new PVector();
+      // initialize join position variables
+      PVector rightHand = new PVector();
+      PVector rightElbow = new PVector();
+      PVector leftHand = new PVector();
+      PVector leftElbow = new PVector();
 
-        PVector torso = new PVector();
-        PVector neck = new PVector();
-        PVector head = new PVector();
+      // dump joint info into the PVectors
+      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, leftHand);
+      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, rightHand);
+      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, leftElbow);
+      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, rightElbow);
 
-        // dump joint info into the PVectors
-        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, leftHand);
-        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, rightHand);
-        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, leftElbow);
-        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, rightElbow);
-        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, leftShoulder);
-        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, rightShoulder);
+      kinect.convertRealWorldToProjective(leftHand, leftHand);
+      kinect.convertRealWorldToProjective(rightHand, rightHand);
+      kinect.convertRealWorldToProjective(leftElbow, leftElbow);
+      kinect.convertRealWorldToProjective(rightElbow, rightElbow);
 
-        kinect.convertRealWorldToProjective(leftHand, leftHand);
-        kinect.convertRealWorldToProjective(rightHand, rightHand);
-        kinect.convertRealWorldToProjective(leftElbow, leftElbow);
-        kinect.convertRealWorldToProjective(rightElbow, rightElbow);
-        kinect.convertRealWorldToProjective(leftShoulder, leftShoulder);
-        kinect.convertRealWorldToProjective(rightShoulder, rightShoulder);
+      PVector[] vectors = {
+        leftHand, rightHand, leftElbow, rightElbow
+      };
 
-        PVector[] vectors = {
-          leftHand, rightHand, leftElbow, rightElbow, leftShoulder, rightShoulder
-        };
+      float[] fits = bestFit(vectors);
 
-        for (PVector v : vectors) {
-          fill(0, 0, 255);
-          noStroke();
-          ellipse(v.x, v.y, 5, 5);
-        }
+      float r2 = rsquare(vectors, fits[0], fits[1]);
 
-        float[] fits = bestFit(vectors);
+      stroke(255, 0, 0);
+      line(0, fits[1], 700, 700 * fits[0] + fits[1]);
 
-        float r2 = rsquare(vectors, fits[0], fits[1]);
+      println("m = " + fits[0]);
 
-        stroke(255, 0, 0);
-        line(0, fits[1], 700, 700 * fits[0] + fits[1]);
-
-        println("R2 = " + r2);
-
-        if (r2 > 0.2) {
-          airplane = true;
-        } else {
-          airplane = false;
-        }
+      if (r2 > 0.2) {
+        airplane = true;
+      } else {
+        airplane = false;
+      }
+      
+      slope = fits[0];
+      
+      // debugging
+      for (PVector v : vectors) {
+        fill(0, 255, 0);
+        noStroke();
+        ellipse(v.x, v.y, 5, 5);
       }
     }
   }
+  
+  if (airplane || was_airplane) {
+    // Set the airplane image
+    if (was_was_airplane == false && was_airplane == false) {
+      airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
+    }
+    
+    if (slope < -0.2) {
+      background(255, 0,0);
+    } else if (slope > 0.2) {
+      background(0, 255, 0);
+    } else {
+      background(0);
+    }
+    
+    // background(0,0,0);
+    image(airplane_image, 100, 100);
+  } else {
+    background(0);
+  }
+  // image(kinect.depthImage(), 0, 0);
+  
+  // Save current state of airplane-ness.
+  was_was_airplane = was_airplane;
+  was_airplane = airplane;
 }
 
+// Significance test for linearity. Overridden when there is an outlier.
 float rsquare(PVector[] list, float m, float b) {
   float average = 0.0;
 
@@ -116,9 +135,7 @@ float rsquare(PVector[] list, float m, float b) {
     sumreg += pow(vector.x * m + b - average, 2);
   }
 
-  println(maxerr);
-
-  if (maxerr > 100) {
+  if (maxerr > 190) {
     return 0;
   } else {
     return 1 - sumerr / sumtot;
