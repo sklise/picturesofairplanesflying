@@ -33,14 +33,11 @@ void draw() {
   // write the list of detected users
   int[] userList = kinect.getUsers();
 
-  println(userList.length);
-
   // if we found any users
   if (userList.length > 0) {
     for (int userId : userList) { 
       // now wait until the skeleton is getting tracked
       if (kinect.isTrackingSkeleton(userId) && found_user == false) {
-        found_user = true;
         // initialize join position variables
         PVector rightHand = new PVector();
         PVector rightElbow = new PVector();
@@ -64,6 +61,7 @@ void draw() {
         kinect.convertRealWorldToProjective(head, head);
         println(head.x);
         if (head.x > 640/4 && head.x < 640 * .75) {
+          found_user = true;
           // Collect joints and find best fit line and R^2
           PVector[] vectors = { leftHand, rightHand, leftElbow, rightElbow };
           float[] fits = bestFit(vectors);
@@ -90,6 +88,7 @@ void draw() {
         }
       }
     }
+    println(found_user);
   } else {
     airplane = false;
   }
