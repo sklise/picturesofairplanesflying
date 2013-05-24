@@ -14,14 +14,13 @@ float slope;
 void setup() {
   kinect = new SimpleOpenNI(this);
   kinect.enableDepth();
-  kinect.enableRGB();
   kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
   kinect.setMirror(true);
   size(1920, 1080);
-  
+
   airplanes = loadStrings("filelist.txt");
   airplane_count = airplanes.length;
-  
+
   title_screen = loadImage("title.jpg");
 }
 
@@ -33,7 +32,7 @@ void draw() {
 
   // if we found any users
   if (userList.length > 0) {
-    
+
     // Use the first user only.
     int userId = userList[0];
     // now wait until the skeleton is getting tracked
@@ -49,7 +48,7 @@ void draw() {
       kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, rightHand);
       kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, leftElbow);
       kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, rightElbow);
-      
+
       // screen coordinates
       kinect.convertRealWorldToProjective(leftHand, leftHand);
       kinect.convertRealWorldToProjective(rightHand, rightHand);
@@ -66,31 +65,31 @@ void draw() {
       } else {
         airplane = false;
       }
-      
-      slope = fits[0];
-      
-      // debugging      
-      stroke(255, 0, 0);
-      line(0, fits[1], 700, 700 * fits[0] + fits[1]);
 
-      for (PVector v : vectors) {
-        fill(0, 255, 0);
-        noStroke();
-        ellipse(v.x, v.y, 5, 5);
-      }
+      slope = fits[0];
+
+      // debugging
+      // stroke(255, 0, 0);
+      // line(0, fits[1], 700, 700 * fits[0] + fits[1]);
+
+      // for (PVector v : vectors) {
+        // fill(0, 255, 0);
+        // noStroke();
+        // ellipse(v.x, v.y, 5, 5);
+      // }
       // end debugging
     }
   }
-  
+
   if (airplane || was_airplane || was_was_airplane) {
     // Set the airplane image
     if (was_was_airplane == false && was_airplane == false) {
       airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
     }
-    
+
     background(0,0,0);
     image(airplane_image, 0, 0);
-    
+
     // tilting
     strokeWeight(3);
     if (slope < -0.2) {
@@ -103,17 +102,17 @@ void draw() {
       if (frameCount % 15 == 0) {
         airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
       }
-      stroke(0, 255, 0);      
+      stroke(0, 255, 0);
       line(0,1,width,1);
     }
     strokeWeight(1);
-    
+
   } else {
     background(0);
     image(title_screen, 0, 0);
   }
-  image(kinect.depthImage(), 0, 0);
-  
+  // image(kinect.depthImage(), 0, 0);
+
   // Save current state of airplane-ness.
   was_was_airplane = was_airplane;
   was_airplane = airplane;
@@ -140,10 +139,10 @@ float rsquare(PVector[] list, float m, float b) {
     float abserr = abs(err);
 
     // set maxerr if absolute value of err is bigger.
-    if (abserr > maxerr) { 
+    if (abserr > maxerr) {
       maxerr = abserr;
     }
-    
+
     sumtot += pow(vector.y - average, 2);
     sumerr += err;
   }
