@@ -61,9 +61,7 @@ void draw() {
       float[] fits = bestFit(vectors);
       float r2 = rsquare(vectors, fits[0], fits[1]);
 
-      println("m = " + fits[0]);
-
-      if (r2 > 0.2) {
+      if (r2 > 0.1) {
         airplane = true;
       } else {
         airplane = false;
@@ -84,7 +82,7 @@ void draw() {
     }
   }
   
-  if (airplane || was_airplane) {
+  if (airplane || was_airplane || was_was_airplane) {
     // Set the airplane image
     if (was_was_airplane == false && was_airplane == false) {
       airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
@@ -93,12 +91,18 @@ void draw() {
     background(0,0,0);
     image(airplane_image, 0, 0);
     
-    strokeWeight(3);
     // tilting
+    strokeWeight(3);
     if (slope < -0.2) {
+      if (frameCount % 15 == 0) {
+        airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
+      }
       stroke(255, 0,0);
       line(0,1,width,1);
     } else if (slope > 0.2) {
+      if (frameCount % 15 == 0) {
+        airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
+      }
       stroke(0, 255, 0);      
       line(0,1,width,1);
     }
@@ -108,7 +112,7 @@ void draw() {
     background(0);
     image(title_screen, 0, 0);
   }
-  // image(kinect.depthImage(), 0, 0);
+  image(kinect.depthImage(), 0, 0);
   
   // Save current state of airplane-ness.
   was_was_airplane = was_airplane;
