@@ -9,6 +9,7 @@ PImage airplane_image;
 PImage title_screen;
 String[] airplanes;
 int airplane_count;
+int airplane_index;
 float slope;
 
 void setup() {
@@ -86,7 +87,8 @@ void draw() {
   if (airplane || was_airplane || was_was_airplane) {
     // Set the airplane image
     if (was_was_airplane == false && was_airplane == false) {
-      airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
+      airplane_index = (int)random(airplane_count);
+      airplane_image = loadImage("airplanes/" + airplanes[airplane_index]);
     }
 
     background(0,0,0);
@@ -95,11 +97,13 @@ void draw() {
     // tilting
     if (slope < -0.2) {
       if (frameCount % 15 == 0) {
-        airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
+        airplane_index = (airplane_index + 1) % airplane_count;
+        airplane_image = loadImage("airplanes/" + airplanes[airplane_index]);
       }
     } else if (slope > 0.2) {
       if (frameCount % 15 == 0) {
-        airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
+        airplane_index = (airplane_index - 1) % airplane_count;
+        airplane_image = loadImage("airplanes/" + airplanes[airplane_index]);
       }
     }
 
