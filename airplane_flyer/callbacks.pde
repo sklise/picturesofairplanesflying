@@ -21,6 +21,7 @@ void onStartPose(String pose, int userId) {
 void onLostUser(int userId)
 {
   println("onLostUser - userId: " + userId);
+  kinect.stopTrackingSkeleton(userId);
 }
 
 void onExitUser(int userId)
