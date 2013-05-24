@@ -20,13 +20,17 @@ void onStartPose(String pose, int userId) {
 
 void onLostUser(int userId)
 {
+  println("User Lost");
   println("onLostUser - userId: " + userId);
   kinect.stopTrackingSkeleton(userId);
 }
 
 void onExitUser(int userId)
 {
+  println("User Exit");
+  airplane = false;
   println("onExitUser - userId: " + userId);
+  kinect.stopTrackingSkeleton(userId);
 }
 
 void onReEnterUser(int userId)
