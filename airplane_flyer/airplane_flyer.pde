@@ -46,42 +46,48 @@ void draw() {
         PVector rightElbow = new PVector();
         PVector leftHand = new PVector();
         PVector leftElbow = new PVector();
+        
+        PVector head = new PVector();
   
         // dump joint info into the PVectors
         kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, leftHand);
         kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, rightHand);
         kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, leftElbow);
         kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, rightElbow);
+        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, head);
   
         // screen coordinates
         kinect.convertRealWorldToProjective(leftHand, leftHand);
         kinect.convertRealWorldToProjective(rightHand, rightHand);
         kinect.convertRealWorldToProjective(leftElbow, leftElbow);
         kinect.convertRealWorldToProjective(rightElbow, rightElbow);
-  
-        // Collect joints and find best fit line and R^2
-        PVector[] vectors = { leftHand, rightHand, leftElbow, rightElbow };
-        float[] fits = bestFit(vectors);
-        float r2 = rsquare(vectors, fits[0], fits[1]);
-  
-        if (r2 > 0.1) {
-          airplane = true;
-        } else {
-          airplane = false;
+        kinect.convertRealWorldToProjective(head, head);
+        println(head.x);
+        if (head.x > 640/4 && head.x < 640 * .75) {
+          // Collect joints and find best fit line and R^2
+          PVector[] vectors = { leftHand, rightHand, leftElbow, rightElbow };
+          float[] fits = bestFit(vectors);
+          float r2 = rsquare(vectors, fits[0], fits[1]);
+    
+          if (r2 > 0.1) {
+            airplane = true;
+          } else {
+            airplane = false;
+          }
+    
+          slope = fits[0];
+    
+          // debugging
+          // stroke(255, 0, 0);
+          // line(0, fits[1], 700, 700 * fits[0] + fits[1]);
+    
+          // for (PVector v : vectors) {
+            // fill(0, 255, 0);
+            // noStroke();
+            // ellipse(v.x, v.y, 5, 5);
+          // }
+          // end debugging
         }
-  
-        slope = fits[0];
-  
-        // debugging
-        // stroke(255, 0, 0);
-        // line(0, fits[1], 700, 700 * fits[0] + fits[1]);
-  
-        // for (PVector v : vectors) {
-          // fill(0, 255, 0);
-          // noStroke();
-          // ellipse(v.x, v.y, 5, 5);
-        // }
-        // end debugging
       }
     }
   } else {
@@ -115,7 +121,7 @@ void draw() {
     background(0);
     image(title_screen, 0, 0);
   }
-//  image(kinect.depthImage(), 0, 0);
+  //image(kinect.depthImage(), 0, 0);
 
   // Save current state of airplane-ness.
   was_was_airplane = was_airplane;
