@@ -91,21 +91,21 @@ void draw() {
     image(airplane_image, 0, 0);
 
     // tilting
-    strokeWeight(3);
+    // strokeWeight(3);
     if (slope < -0.2) {
       if (frameCount % 15 == 0) {
         airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
       }
-      stroke(255, 0,0);
-      line(0,1,width,1);
+      // stroke(255, 0,0);
+      // line(0,1,width,1);
     } else if (slope > 0.2) {
       if (frameCount % 15 == 0) {
         airplane_image = loadImage("airplanes/" + airplanes[(int)random(airplane_count)]);
       }
-      stroke(0, 255, 0);
-      line(0,1,width,1);
+      // stroke(0, 255, 0);
+      // line(0,1,width,1);
     }
-    strokeWeight(1);
+    // strokeWeight(1);
 
   } else {
     background(0);
