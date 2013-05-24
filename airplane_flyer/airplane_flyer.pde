@@ -27,6 +27,7 @@ void setup() {
 }
 
 void draw() {
+  boolean found_user = false;
   kinect.update();
 
   // write the list of detected users
@@ -38,7 +39,8 @@ void draw() {
   if (userList.length > 0) {
     for (int userId : userList) { 
       // now wait until the skeleton is getting tracked
-      if (kinect.isTrackingSkeleton(userId)) {
+      if (kinect.isTrackingSkeleton(userId) && found_user == false) {
+        found_user = true;
         // initialize join position variables
         PVector rightHand = new PVector();
         PVector rightElbow = new PVector();
@@ -82,6 +84,8 @@ void draw() {
         // end debugging
       }
     }
+  } else {
+    airplane = false;
   }
 
   if (airplane || was_airplane || was_was_airplane) {
@@ -92,7 +96,7 @@ void draw() {
     }
 
     background(0,0,0);
-    image(airplane_image, 0, 0);
+    image(airplane_image, 0, -120);
 
     // tilting
     if (slope < -0.2) {
@@ -111,7 +115,7 @@ void draw() {
     background(0);
     image(title_screen, 0, 0);
   }
-  //image(kinect.depthImage(), 0, 0);
+//  image(kinect.depthImage(), 0, 0);
 
   // Save current state of airplane-ness.
   was_was_airplane = was_airplane;
