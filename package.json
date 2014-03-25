@@ -1,17 +1,15 @@
 {
-  "name": "picturesofairplanesflying",
-  "version": "0.0.0",
+  "name": "someairplanes",
+  "version": "1.0.0",
   "description": "art",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": "",
   "author": "Steve Klise",
   "readmeFilename": "readme.md",
-  "dependencies" : {
-    "director": "",
-    "ecstatic": "",
-    "union": ""
+  "devDependencies": {
+    "harp": "~0.11.2",
+    "gulp": "~3.5.6",
+    "gulp-awspublish": "0.0.11",
+    "dotenv": "~0.2.5",
+    "mkdirp": "~0.3.5"
   }
 }
