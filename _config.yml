@@ -1,0 +1,5 @@
+exclude: [data, installation, readme.md, tasks]
+description: 'a photo zine of airplanes'
+img: /images/issue1-giffer.gif
+title: Airplanes
+url: http://someairplan.es
